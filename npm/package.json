@@ -1,0 +1,11 @@
+{
+  "name": "pokedex",
+  "version": "1.0.0",
+  "description": "pokedex seeds the starter pokemon, and the user can update the pokedex with future recordings",
+  "main": "index.js",
+  "scripts": {
+    "pokeUpdate": "nodemon index.js"
+  },
+  "author": "Justin Adams",
+  "license": "ISC"
+}
