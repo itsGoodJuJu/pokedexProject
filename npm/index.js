@@ -36,6 +36,12 @@ const logger = winston.createLogger({
 }
 
 
+/*
+Endpoint: 
+    GET: returns a list of all pokedex entries; if an id is provided, only a single pokedex entry is returned
+Query Parameters:
+    id[number]: assigned number of the pokedex entry
+*/
 
 // Justin GET
 app.get('/pokedex', async function(req, res) {
@@ -46,7 +52,13 @@ app.get('/pokedex', async function(req, res) {
         res.status(400).json({
             error: "Request body is not permitted"
         });
-    } 
+    } else if(isNaN(req.query.id) && req.query.id != undefined) {
+        clientError(req, "ID is NaN", 400);
+        // checks to make sure that the id is a number
+        res.status(400).json({
+            error: "ID is NaN"
+        });
+    }
     else {
         // else is the success case
         if(req.query.id == undefined) {
@@ -63,14 +75,41 @@ app.get('/pokedex', async function(req, res) {
 
 
 // Marcus POST
-
-
+app.post('/pokedex', async function (req,res){
+    console.log(req.body)
+    const {name,
+      primary_type,
+      secondary_type,
+      evolution_stage,
+      region_of_origin,
+       height,
+       weight_lbs,
+       bst} = req.body
+    let pokedex = await db.query('INSERT INTO pokedex(name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *', [name, primary_type, secondary_type,
+      evolution_stage,
+      region_of_origin,
+       height,
+       weight_lbs,
+       bst]);
+    res.json(pokedex)
+  })
+  
+  
 
 // Joel PUT
-
-
+app.put('/pokedex/:id', async function (req, res) {
+    const id = parseInt(req.params.id)
+    const { name, email } = request.body
+    let pokedex = await db.none('UPDATE pokedex SET id = $1, name = $2',[id, name, email])
+    res.json(pokedex);
+});
 
 // David DELETE
+app.delete('/pokedex/:id', async function(req, res) {
+    const id = (req.params.id);
+    let pokedexDelete = await db.query('DELETE FROM pokedex WHERE id = $1', [id]);
+    res.json(pokedexDelete);
+})
 
 // app.delete('/pokedex/:id', (req, res)=> {
 //     if(Object.keys(req.body).length != 0) {
@@ -100,6 +139,7 @@ app.delete('/pokedex/:id', async function(req, res) {
 
 
 
+// listen
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
 })
