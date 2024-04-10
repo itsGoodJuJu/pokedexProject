@@ -72,27 +72,31 @@ app.get('/pokedex', async function(req, res) {
 
 // David DELETE
 
-app.delete('/pokedex/:id', (req, res)=> {
-    if(Object.keys(req.body).length != 0) {
-        res.status(400).json({error: "Request within the body is not allowed"}); 
+// app.delete('/pokedex/:id', (req, res)=> {
+//     if(Object.keys(req.body).length != 0) {
+//         res.status(400).json({error: "Request within the body is not allowed"}); 
 
-    } else if(Object.keys(req.query).length > 1){ 
-        clientError(req, "Query Parameters do not meet requirements", 400);
-        res.status(400).json({error: "Query Parameters do not meet requirements"});
+//     } else if(Object.keys(req.query).length > 1){ 
+//         clientError(req, "Query Parameters do not meet requirements", 400);
+//         res.status(400).json({error: "Query Parameters do not meet requirements"});
 
-    } else if((Object.keys(req.query).length != 0) && (Object.keys(req.query)[0] != "id")){
-        clientError(req, "Query Parameters do not meet requirements", 400);
-        res.status(401).json({error: "Query Parameters do not meet requirements"});
+//     } else if((Object.keys(req.query).length != 0) && (Object.keys(req.query)[0] != "id")){
+//         clientError(req, "Query Parameters do not meet requirements", 400);
+//         res.status(401).json({error: "Query Parameters do not meet requirements"});
 
-    } else if(isNaN(req.query.id) && req.query.id != undefined){
-        clientError(req, "id provided is not a number", 400);
-        res.status(401).json({error: "id provided is not a number"});
-    }
+//     } else if(isNaN(req.query.id) && req.query.id != undefined){
+//         clientError(req, "id provided is not a number", 400);
+//         res.status(401).json({error: "id provided is not a number"});
+//     }
+// })
+
+app.delete('/pokedex/:id', async function(req, res) {
+    const id = (req.params.id);
+    let pokedexDelete = await db.query('DELETE FROM pokedex WHERE id = $1', [id]);
+    res.json(pokedexDelete);
+
 })
-
-app.delete('/pokedex/id', (req, res)=> {
     
-})
 
 
 
