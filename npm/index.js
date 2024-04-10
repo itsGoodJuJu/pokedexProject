@@ -20,12 +20,46 @@ const logger = winston.createLogger({
     ],
   });
 
+  function clientError(req, message, errorCode) {
+    logger.log({
+        level: "info",
+        endpoint: req.path,
+        method: req.method,
+        query_parameters: req.query,
+        path_parameters: req.params,
+        body: req.body,
+        ip: req.ip,
+        errorCode: errorCode,
+        message: message,
+        timestamp: new Date(),
+    })
+}
+
 
 
 // Justin GET
-app.get('/pokedex', function (req, res) {
-    db.any('SELECT * FROM pokedex')
-})
+app.get('/pokedex', async function(req, res) {
+    let pokedex = await db.any('SELECT * FROM pokedex;');
+    if(Object.keys(req.body).length != 0) {
+        clientError(req, "Request body is not permitted", 400);
+        // check if a body was provided in the request
+        res.status(400).json({
+            error: "Request body is not permitted"
+        });
+    } 
+    else {
+        // else is the success case
+        if(req.query.id == undefined) {
+            // check if an id was passed or not from the client
+            // if not, return all todos
+            res.json({pokedex})
+        } else {
+            let id = req.query.id;
+            let pokemonId = await db.query('SELECT * FROM pokedex WHERE id = $1', [id])
+            res.json(pokemonId);
+        }
+    }
+});
 
 
 // Marcus POST
@@ -39,6 +73,6 @@ app.get('/pokedex', function (req, res) {
 // David DELETE
 
 
-app.listen(5432, () => {
-    console.log("Server is running on port 5432");
+app.listen(3000, () => {
+    console.log("Server is running on port 3000");
 })
