@@ -23,8 +23,9 @@ const logger = winston.createLogger({
 
 
 // Justin GET
-app.get('/pokedex', function (req, res) {})
-await db.any('SELECT * FROM pokedex')
+app.get('/pokedex', function (req, res) {
+    db.any('SELECT * FROM pokedex')
+})
 
 
 // Marcus POST
