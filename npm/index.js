@@ -23,7 +23,7 @@ const logger = winston.createLogger({
 
 
 // Justin GET
-app.get('/todo', function (req, res) {})
+app.get('/pokedex', function (req, res) {})
 await db.any('SELECT * FROM pokedex')
 
 
@@ -36,3 +36,8 @@ await db.any('SELECT * FROM pokedex')
 
 
 // David DELETE
+
+
+app.listen(5432, () => {
+    console.log("Server is running on port 5432");
+})
