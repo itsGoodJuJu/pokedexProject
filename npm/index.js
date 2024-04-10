@@ -56,6 +56,10 @@ app.delete('/pokedex/:id', (req, res)=> {
     }
 })
 
+app.delete('/pokedex/id', (req, res)=> {
+    
+})
+
 
 
 app.listen(5432, () => {
