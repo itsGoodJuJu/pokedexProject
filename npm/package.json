@@ -7,5 +7,8 @@
     "pokeUpdate": "nodemon index.js"
   },
   "author": "Justin Adams",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "pg-promise": "^11.6.0"
+  }
 }
