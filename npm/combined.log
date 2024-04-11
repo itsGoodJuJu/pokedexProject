@@ -1,2 +1,0 @@
-{"body":{"test":"haha"},"endpoint":"/pokedex","errorCode":400,"ip":"::1","level":"info","message":"Request body is not permitted","method":"GET","path_parameters":{},"query_parameters":{"id":"6"},"timestamp":"2024-04-10T18:02:44.214Z"}
-{"body":{"test":"haha"},"endpoint":"/pokedex","errorCode":400,"ip":"::1","level":"info","message":"Request body is not permitted","method":"GET","path_parameters":{},"query_parameters":{},"timestamp":"2024-04-10T19:15:43.368Z"}
