@@ -35,6 +35,27 @@ const logger = winston.createLogger({
     })
 }
 
+/*
+Middleware:
+    Creates a log for every API call
+*/
+let clientID = 0;
+app.all('/*', (req, res, next) => {
+    clientID++;
+    logger.log({
+        level: "info",
+        endpoint: req.path,
+        method: req.method,
+        query_parameters: req.query,
+        path_parameters: req.params,
+        body: req.body,
+        ip: req.ip,
+        // errorCode: 400,
+        timestamp: new Date(),
+    });
+    next();
+})
+
 
 
 /*
@@ -53,23 +74,25 @@ app.get('/pokedex', async function(req, res) {
         res.status(400).json({
             error: "Request body is not permitted"
         });
-    } else if(Object.keys(req.query).length > 1) {
-        clientError(req, "Query parameters do not meet requirements", 400);
-        // checks if there is more than one query parameter entered
-        res.status(400).json({
-            error: "Query parameters do not meet requirements"
-        });
-    } else if((Object.keys(req.query).length != 0) && (Object.keys(req.query)[0] != "id" && Object.keys(req.query)[0] != "name" && Object.keys(req.query)[0] != "primary_type" && Object.keys(req.query)[0] != "secondary_type" && Object.keys(req.query)[0] != "evolution_stage" && Object.keys(req.query)[0] != "region_of_origin" && Object.keys(req.query)[0] != "height" && Object.keys(req.query)[0] != "weight_lbs" && Object.keys(req.query)[0] != "bst")) {
+    } 
+    // else if(Object.keys(req.query).length > 1) {
+    //     clientError(req, "Query parameters do not meet requirements", 400);
+    //     // checks if there is more than one query parameter entered
+    //     res.status(400).json({
+    //         error: "Query parameters do not meet requirements"
+    //     });
+    // } 
+    else if((Object.keys(req.query).length != 0) && (Object.keys(req.query)[0] != "id" && Object.keys(req.query)[0] != "name" && Object.keys(req.query)[0] != "primary_type" && Object.keys(req.query)[0] != "secondary_type" && Object.keys(req.query)[0] != "evolution_stage" && Object.keys(req.query)[0] != "region_of_origin" && Object.keys(req.query)[0] != "height" && Object.keys(req.query)[0] != "weight_lbs" && Object.keys(req.query)[0] != "bst")) {
         clientError(req, "Query parameters do not meet requirements", 400);
         // checks if parameters other than id or list are passed
         res.status(400).json({
             error: "Query parameters do not meet requirements"
         });
     } else if((isNaN(req.query.id) && req.query.id != undefined) || (isNaN(req.query.evolution_stage) && req.query.evolution_stage != undefined) || (isNaN(req.query.weight_lbs) && req.query.weight_lbs != undefined) || (isNaN(req.query.bst) && req.query.bst != undefined)) {
-        clientError(req, "ID is NaN", 400);
+        clientError(req, "Query Parameter is NaN", 400);
         // checks to make sure that the id is a number
         res.status(400).json({
-            error: "ID is NaN"
+            error: "Query Parameter is NaN"
         });
     }
     else {
@@ -128,39 +151,87 @@ app.get('/pokedex', async function(req, res) {
 });
 
 
+/*
+Endpoint: 
+    POST: adds entries to the pokedex.
+Body:
+    name[string](required): the name to be added to the pokedex
+    primary_type[string](required): the first type to be added to the pokedex
+    secondary_type[string]: the second type to be added to the pokedex
+    evolution_stage[number]: a number that represents the stage of evolution (1-3)
+    region_of_origin[string](required): the region the pokemon was first introduced
+    height[string](required): the height of the pokemon to be added
+    weight_lbs[number](required): the weight in pounds of the pokemon to be added
+    bst[number](required): the base stat total of the pokemon to be added to the pokedex
+*/
+
 // Marcus POST
 app.post('/pokedex', async function (req,res){
-    console.log(req.body)
-    const {name,
-      primary_type,
-      secondary_type,
-      evolution_stage,
-      region_of_origin,
-       height,
-       weight_lbs,
-       bst} = req.body
-    let pokedex = await db.query('INSERT INTO pokedex(name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *', [name, primary_type, secondary_type,
-      evolution_stage,
-      region_of_origin,
-       height,
-       weight_lbs,
-       bst]);
-    res.json(pokedex)
-    // if(!req.body|| typeof req.body !== 'object'|| !('name' in req.body.name||!('primary_type' in req.body.primary_type||!('secondary_type' in req.body.secondary_type||!('evolution_stage' in req.body.evolution_stage||!('region_of_origin' in req.body.region_of_origin||!('height' in req.body.height||!('weight_lbs' in req.body.weight_lbs||!('bst' in req.body.bst))))))))){
-    //     res.statusCode = 400
-    //     res.json({error: "Invalid body Parameters"})
-    //   }
+    const type = [ "grass",  "water",  "fire",  "dark",  "normal",  "fairy", "electric", "ice", "fighting", "poison", "flying", "ground", "bug", "psychic", "rock", "ghost", "dragon", "steel", null];
+    const regionAllowed = ["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea", "Kitakami"];
+
+    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst)!== 'number')){
+        // does not allow secondary_type or evolution_stage to equal null
+        res.statusCode = 400
+        res.json({error: "Invalid body Parameters"})
+    } else if(!type.includes(req.body.primary_type)) {
+        res.statusCode = 400
+        res.json({error: "type does not exist"})
+    } else if(!type.includes(req.body.secondary_type)) {
+        res.statusCode = 400
+        res.json({error: "type does not exist"})
+    } else if(!regionAllowed.includes(req.body.region_of_origin)) {
+        res.statusCode = 400
+        res.json({error: "Region does not exist"})
+    }
+    else {
+        console.log(req.body)
+        const {
+            name,
+            primary_type,
+            secondary_type,
+            evolution_stage,
+            region_of_origin,
+            height,
+            weight_lbs,
+            bst
+        } = req.body
+        let pokedex = await db.query('INSERT INTO pokedex(name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *', [name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst]);
+        res.json(pokedex)
+    }
   })
   
-  
+  /*
+Endpoint: 
+    PUT: updates an existing pokedex entry and modifies its data
+Path Parameter:
+    name[string](required): the name of the pokemon to be updated to the pokedex
+Body:
+    name[string]:the pokedex entry to be updated
+*/
 
 // Joel PUT
-app.put('/pokedex/:id', async function (req, res) {
-    const id = parseInt(req.params.id)
-    const { name, email } = request.body
-    let pokedex = await db.none('UPDATE pokedex SET id = $1, name = $2',[id, name, email])
-    res.json(pokedex);
+app.put('/pokedex/:name', async function(req, res) {
+    // } else 
+    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst)!== 'number')){
+        res.statusCode = 400
+        res.json({error: "Invalid body Parameters"})
+    } else {
+        console.log(req.body);
+        const nameInput = req.params.name;
+        const {name,primary_type,secondary_type,evolution_stage,region_of_origin,height,weight_lbs,bst} = req.body
+        let updatedPokemon = await db.query(`UPDATE pokedex SET name =$1, primary_type=$2,secondary_type=$3,evolution_stage=$4, region_of_origin=$5, height=$6, weight_lbs=$7, bst=$8 WHERE name =$9 RETURNING *`,[name,primary_type,secondary_type,evolution_stage,region_of_origin,height,weight_lbs,bst, nameInput]);
+        res.json(updatedPokemon);
+    }
+    
 });
+
+/*
+Endpoint: 
+    DELETE: deletes an existing pokedex entry
+Path Parameter:
+    id[number](required): the id of the pokedex entry to be deleted from the pokedex
+*/
 
 // David DELETE
 app.delete('/pokedex/:id', async function(req, res) {
@@ -170,20 +241,31 @@ app.delete('/pokedex/:id', async function(req, res) {
         res.status(400).json({
             error: "Request body is not permitted"
         });
-    } else {
-        if(req.params.id >= 0 && req.params.id <= pokedex.length){
-            const id = (req.params.id);
-            let pokedexDelete = await db.query('DELETE FROM pokedex WHERE id = $1', [id]);
-            res.json(pokedexDelete);
-        } else {
-            // if id# is not an available id, return an error message
-            clientError(req, "Parameters do not meet requirements", 400)
-            res.status(400).json({
-                error: "Parameters do not meet requirements"
-            });
-        }
+    } else if(isNaN(req.params.id)) {
+        clientError(req, "Parameters do not meet requirements", 400)
+        // checks if the parameter entered is a number
+        res.status(400).json({
+            error: "Parameters do not meet requirements"
+        });
+    } 
+    // else if(req.params.id !== undefined) {
+    //     let pokeId = await db.any('SELECT id FROM pokedex;');
+    //     if(req.params.id != pokeId) {
+    //         clientError(req, "Parameters do not meet requirements", 400)
+    //         // checks if the parameter entered is a number
+    //         res.status(400).json({
+    //             error: "Parameters do not meet "
+    //         });
+    //     }
+    // } 
+    else {
+        const id = (req.params.id);
+        let pokedexDelete = await db.query('DELETE FROM pokedex WHERE id = $1 RETURNING *', [id]);
+        res.json(pokedexDelete);
+       
     }
 })
+
 
 
 // listen
