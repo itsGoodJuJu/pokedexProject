@@ -97,10 +97,15 @@ app.get('/pokedex', async function(req, res) {
     }
     else {
         // else is the success case
-        if(req.query.id == undefined && req.query.name == undefined && req.query.primary_type == undefined && req.query.secondary_type == undefined && req.query.evolution_stage == undefined && req.query.region_of_origin == undefined && req.query.height == undefined && req.query.weight_lbs == undefined && req.query.bst == undefined) {
+        if(req.query.id == undefined && req.query.name == undefined && req.query.primary_type == undefined && req.query.secondary_type == undefined && req.query.evolution_stage == undefined && req.query.region_of_origin == undefined && req.query.height == undefined && req.query.weight_lbs == undefined && req.query.bst == undefined && req.query.image == undefined) {
             // check if an id was passed or not from the client
             // if not, return all todos
             res.json({pokedex})
+        } else if(req.query.image !== undefined) {
+            // selects data using image parameter
+            let image = req.query.image;
+            let pokeImage = await db.query('SELECT * FROM pokedex WHERE image = $1', [image])
+            res.json(pokeImage);
         } else if(req.query.bst !== undefined) {
             // selects data using BST parameter
             let bst = req.query.bst;
@@ -167,10 +172,11 @@ Body:
 
 // Marcus POST
 app.post('/pokedex', async function (req,res){
+    console.log(req.body.image);
     const type = [ "grass",  "water",  "fire",  "dark",  "normal",  "fairy", "electric", "ice", "fighting", "poison", "flying", "ground", "bug", "psychic", "rock", "ghost", "dragon", "steel", null];
     const regionAllowed = ["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea", "Kitakami"];
 
-    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst)!== 'number')){
+    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst) !== 'number') || (!'image' in req.body || typeof(req.body.image) !== 'string') || (!'moves' in req.body || typeof(req.body.moves) !== 'object')){
         // does not allow secondary_type or evolution_stage to equal null
         res.statusCode = 400
         res.json({error: "Invalid body Parameters"})
@@ -194,9 +200,11 @@ app.post('/pokedex', async function (req,res){
             region_of_origin,
             height,
             weight_lbs,
-            bst
+            bst,
+            image,
+            moves
         } = req.body
-        let pokedex = await db.query('INSERT INTO pokedex(name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *', [name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst]);
+        let pokedex = await db.query('INSERT INTO pokedex(name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst, image, moves) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *', [name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst, image, moves]);
         res.json(pokedex)
     }
   })
@@ -213,14 +221,14 @@ Body:
 // Joel PUT
 app.put('/pokedex/:name', async function(req, res) {
     // } else 
-    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst)!== 'number')){
+    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst)!== 'number') || (!'image' in req.body || typeof(req.body.image) !== 'string') || (!'moves' in req.body || typeof(req.body.moves) !== 'object')){
         res.statusCode = 400
         res.json({error: "Invalid body Parameters"})
     } else {
         console.log(req.body);
         const nameInput = req.params.name;
-        const {name,primary_type,secondary_type,evolution_stage,region_of_origin,height,weight_lbs,bst} = req.body
-        let updatedPokemon = await db.query(`UPDATE pokedex SET name =$1, primary_type=$2,secondary_type=$3,evolution_stage=$4, region_of_origin=$5, height=$6, weight_lbs=$7, bst=$8 WHERE name =$9 RETURNING *`,[name,primary_type,secondary_type,evolution_stage,region_of_origin,height,weight_lbs,bst, nameInput]);
+        const {name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst, image, moves} = req.body
+        let updatedPokemon = await db.query(`UPDATE pokedex SET name = $1, primary_type = $2,secondary_type = $3,evolution_stage = $4, region_of_origin = $5, height = $6, weight_lbs = $7, bst = $8 , image = $9, moves = $10 WHERE name = $11 RETURNING *`,[name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst, image, moves, nameInput]);
         res.json(updatedPokemon);
     }
     
