@@ -35,7 +35,6 @@ const logger = winston.createLogger({
     })
 }
 
-let pokedex=[];
 
 
 /*
