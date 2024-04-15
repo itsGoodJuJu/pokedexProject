@@ -84,7 +84,7 @@ app.get('/pokedex', async function(req, res) {
     // } 
     else if((Object.keys(req.query).length != 0) && (Object.keys(req.query)[0] != "id" && Object.keys(req.query)[0] != "name" && Object.keys(req.query)[0] != "primary_type" && Object.keys(req.query)[0] != "secondary_type" && Object.keys(req.query)[0] != "evolution_stage" && Object.keys(req.query)[0] != "region_of_origin" && Object.keys(req.query)[0] != "height" && Object.keys(req.query)[0] != "weight_lbs" && Object.keys(req.query)[0] != "bst")) {
         clientError(req, "Query parameters do not meet requirements", 400);
-        // checks if parameters other than id or list are passed
+        // checks if parameters other than id, name, types, etc. are passed
         res.status(400).json({
             error: "Query parameters do not meet requirements"
         });
@@ -156,6 +156,23 @@ app.get('/pokedex', async function(req, res) {
 });
 
 
+
+// Marcus's get he sent during the weekend
+app.get('/getRandomPokemon', async function(req,res){ try{
+    let randomPokemon = await db.query('SELECT image FROM pokedex ORDER BY RANDOM() LIMIT 2');
+    if(randomPokemon.length === 0){
+        res.statusCode = 400
+        res.json({error: "images not found"})
+    }else{
+        res.json(randomPokemon)
+    }
+        } catch (error) {
+    res.statusCode = 400
+    res.json({error: "Action failed"})
+    }
+})
+
+
 /*
 Endpoint: 
     POST: adds entries to the pokedex.
@@ -176,7 +193,11 @@ app.post('/pokedex', async function (req,res){
     const type = [ "grass",  "water",  "fire",  "dark",  "normal",  "fairy", "electric", "ice", "fighting", "poison", "flying", "ground", "bug", "psychic", "rock", "ghost", "dragon", "steel", null];
     const regionAllowed = ["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea", "Kitakami"];
 
-    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst) !== 'number') || (!'image' in req.body || typeof(req.body.image) !== 'string') || (!'moves' in req.body || typeof(req.body.moves) !== 'object')){
+    let rexexpNumbers = /^[0-9\s]+$/;
+    let Regexpletters = /^[a-zA-Z\s]+$/;
+    let heightregexp = /^(([0-9]+|['])([0-9]*)['])*$/;
+
+    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || (typeof(req.body.secondary_type) !== 'string')) && (!'evolution_stage' in req.body|| (typeof(req.body.evolution_stage) !== 'number' && typeof(req.body.evolution_stage) !== 'null')) || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst) !== 'number') || (!'image' in req.body || typeof(req.body.image) !== 'string') || (!'moves' in req.body || typeof(req.body.moves) !== 'object')){
         // does not allow secondary_type or evolution_stage to equal null
         res.statusCode = 400
         res.json({error: "Invalid body Parameters"})
@@ -189,7 +210,14 @@ app.post('/pokedex', async function (req,res){
     } else if(!regionAllowed.includes(req.body.region_of_origin)) {
         res.statusCode = 400
         res.json({error: "Region does not exist"})
-    }
+    } else if(!Regexpletters.test(req.body.name)){
+        res.statusCode = 400
+        res.json({error: "Request body does not meet requirements"})
+    } 
+    // else if(!heightregexp.test(req.body.height)){
+    //     res.statusCode = 400
+    //     res.json({error: "height does not match criteria"})
+    // }
     else {
         console.log(req.body)
         const {
@@ -280,3 +308,27 @@ app.delete('/pokedex/:id', async function(req, res) {
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
 })
+
+
+fetch('http://localhost:3000/pokedex')
+.then(resp =>  resp.json())
+.then(data => {
+        console.log(data);
+    for(let i = 0; i < data.pokedex.length; i++) {
+        console.log(data.pokedex[i].height)
+    }
+    
+    // let pokedexContainer = document.getElementById("pokemonContainer");
+    // let pokedexCard = document.createElement("div");
+    // pokedexCard.classList.add("card");
+
+    // let pokemonNameTag = document.createElement("p");
+    // let pokemonUrl = document.createElement("p");
+    
+    // pokemonNameTag.innerText = "Name: " + user[i].name;
+    // pokemonUrl.innerText = "Url:  " + user[i].image;
+    
+    // pokedexCard.appendChild(pokemonNameTag);
+    // pokedexCard.appendChild(pokemonUrl);
+    // pokedexContainer.appendChild(pokedexCard);
+});
