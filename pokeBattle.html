@@ -4,12 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokémon Battle</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Pokémon Battle</h1>
-    <div id="pokedex">
-    <div id ="pokemonContainer" class="pokemonContainer"></div>
-    <img src="images/battlefield.png" height="100%" width="100%">
+    
+    <div id="pokeParties">
+        <!-- Battle button -->
+        <button type="button" id="pokeButton" class="btn btn-primary">Prepare your team!</button>
+        <button type="button" id="pokeButton" class="btn btn-primary">Prepare opponent's team!</button>
+    </div>
+
+    <div id ="pokemonContainer" class="pokemonContainer">
+
+    </div>
+
+    
+<!-- Pokemon container for two pokemon -->
+    <!-- <div class="pokecontainer">
+        <div id="pokeMon1" class="pokemon"></div>
+        <div id="pokeMon2" class="pokemon"> </div> -->
+    </div>
+<!-- Pokemon images -->
+    <!-- <img src="" alt="Pokemon Image" id="pokemonSprite1" style="display: none">
+    <img src="" alt="Pokemon Image" id="pokemonSprite2" style="display: none"> -->
+
+<!-- Audio -->
+    <audio autoplay loop>
+        <source src="pokebattle.mp3" type="audio/mpeg">
+        no support
+    </audio>
 
 
     <script src="index.js"></script>
