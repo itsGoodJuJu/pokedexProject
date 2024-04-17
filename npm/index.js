@@ -154,14 +154,14 @@ app.get('/pokedex', async function(req, res) {
         } else if (req.query.partyPokemon !== undefined) {
             await db.none('DROP TABLE partypokemon');
 
-            await db.none('CREATE TABLE partypokemon (id SERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL, primary_type VARCHAR(50) NOT NULL, secondary_type VARCHAR(50) NULL, hp INTEGER NOT NULL, physical INTEGER NOT NULL, defense INTEGER NOT NULL, spatk INTEGER NOT NULL, spdef INTEGER NOT NULL, speed INTEGER NOT NULL, image VARCHAR(500) NOT NULL, moves VARCHAR(500)[]);');
+            await db.none('CREATE TABLE partypokemon (id SERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL, primary_type VARCHAR(50) NOT NULL, secondary_type VARCHAR(50) NULL, hp INTEGER NOT NULL, attack INTEGER NOT NULL, defense INTEGER NOT NULL, spatk INTEGER NOT NULL, spdef INTEGER NOT NULL, speed INTEGER NOT NULL, image VARCHAR(500) NOT NULL, moves VARCHAR(500)[]);');
 
-            let partypokemon = await db.any('SELECT name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6');
+            let partypokemon = await db.any('SELECT name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6');
 
             for(let i = 0; i < partypokemon.length; i++) {
-                await db.any('INSERT INTO partypokemon (name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [partypokemon[i].name, partypokemon[i].primary_type, partypokemon[i].secondary_type, partypokemon[i].hp, partypokemon[i].physical, partypokemon[i].defense, partypokemon[i].spatk, partypokemon[i].spdef, partypokemon[i].speed, partypokemon[i].image]);
+                await db.any('INSERT INTO partypokemon (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [partypokemon[i].name, partypokemon[i].primary_type, partypokemon[i].secondary_type, partypokemon[i].hp, partypokemon[i].attack, partypokemon[i].defense, partypokemon[i].spatk, partypokemon[i].spdef, partypokemon[i].speed, partypokemon[i].image]);
             }
-            // await db.any('INSERT INTO partypokemon (name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image) SELECT name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6 RETURNING *;');
+            // await db.any('INSERT INTO partypokemon (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image) SELECT name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6 RETURNING *;');
 
             // Create a variable that holds all party pokemon
             // Run a SQL query retrieve all pokemon
@@ -188,12 +188,12 @@ app.get('/pokedex', async function(req, res) {
             res.json(await db.any('SELECT * FROM partypokemon'));
         } else if (req.query.oppoPokemon !== undefined) {
             await db.none('DROP TABLE opponentpokemon');
-            await db.none('CREATE TABLE opponentpokemon (id SERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL, primary_type VARCHAR(50) NOT NULL, secondary_type VARCHAR(50) NULL, hp INTEGER NOT NULL, physical INTEGER NOT NULL, defense INTEGER NOT NULL, spatk INTEGER NOT NULL, spdef INTEGER NOT NULL, speed INTEGER NOT NULL, image VARCHAR(500) NOT NULL, moves VARCHAR(500)[]);');
+            await db.none('CREATE TABLE opponentpokemon (id SERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL, primary_type VARCHAR(50) NOT NULL, secondary_type VARCHAR(50) NULL, hp INTEGER NOT NULL, attack INTEGER NOT NULL, defense INTEGER NOT NULL, spatk INTEGER NOT NULL, spdef INTEGER NOT NULL, speed INTEGER NOT NULL, image VARCHAR(500) NOT NULL, moves VARCHAR(500)[]);');
 
-            let oppopokemon = await db.any('SELECT name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6');
+            let oppopokemon = await db.any('SELECT name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6');
 
             for(let i = 0; i < oppopokemon.length; i++) {
-                await db.any('INSERT INTO opponentpokemon (name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [oppopokemon[i].name, oppopokemon[i].primary_type, oppopokemon[i].secondary_type, oppopokemon[i].hp, oppopokemon[i].physical, oppopokemon[i].defense, oppopokemon[i].spatk, oppopokemon[i].spdef, oppopokemon[i].speed, oppopokemon[i].image]);
+                await db.any('INSERT INTO opponentpokemon (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [oppopokemon[i].name, oppopokemon[i].primary_type, oppopokemon[i].secondary_type, oppopokemon[i].hp, oppopokemon[i].attack, oppopokemon[i].defense, oppopokemon[i].spatk, oppopokemon[i].spdef, oppopokemon[i].speed, oppopokemon[i].image]);
             }
 
             for(let i = 1; i <= oppopokemon.length; i++){
@@ -215,20 +215,20 @@ app.get('/pokedex', async function(req, res) {
 
 
 
-// Marcus's get he sent during the weekend
-app.get('/getRandomPokemon', async function(req,res){ try{
-    let randomPokemon = await db.query('SELECT image FROM pokedex ORDER BY RANDOM() LIMIT 2');
-    if(randomPokemon.length === 0){
-        res.statusCode = 400
-        res.json({error: "images not found"})
-    }else{
-        res.json(randomPokemon)
-    }
-        } catch (error) {
-    res.statusCode = 400
-    res.json({error: "Action failed"})
-    }
-})
+// // Marcus's get he sent during the weekend
+// app.get('/getRandomPokemon', async function(req,res){ try{
+//     let randomPokemon = await db.query('SELECT image FROM pokedex ORDER BY RANDOM() LIMIT 2');
+//     if(randomPokemon.length === 0){
+//         res.statusCode = 400
+//         res.json({error: "images not found"})
+//     }else{
+//         res.json(randomPokemon)
+//     }
+//         } catch (error) {
+//     res.statusCode = 400
+//     res.json({error: "Action failed"})
+//     }
+// })
 
 
 /*
@@ -389,17 +389,10 @@ app.delete('/pokedex/:id', async function(req, res) {
     
 // }
 
-// pokemonParty();
-
-// function oppoParty() {
-//     app.get('/oppoParty', async function(req, res) {
-//         let oppoParty = await db.any('INSERT INTO partypokemon (name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image) SELECT name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6 RETURNING *;');
-//         res.json(oppoParty);
-//     })
-// }
-
-// oppoParty();
-
+// ATTACK ENDPOINT
+// app.get('/battle', async function(req, res) {
+//     await db.any('SELECT ')
+// })
 
 
 // listen

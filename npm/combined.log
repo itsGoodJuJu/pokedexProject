@@ -182,3 +182,6 @@
 {"body":{},"endpoint":"/pokedex","ip":"::1","level":"info","method":"GET","path_parameters":{"0":"pokedex"},"query_parameters":{"oppoPokemon":""},"timestamp":"2024-04-17T03:49:14.669Z"}
 {"body":{},"endpoint":"/pokedex","ip":"::1","level":"info","method":"GET","path_parameters":{"0":"pokedex"},"query_parameters":{"oppoPokemon":""},"timestamp":"2024-04-17T13:04:25.684Z"}
 {"body":{},"endpoint":"/pokedex","ip":"::1","level":"info","method":"GET","path_parameters":{"0":"pokedex"},"query_parameters":{"partyPokemon":""},"timestamp":"2024-04-17T13:07:56.870Z"}
+{"body":{},"endpoint":"/pokedex","ip":"::1","level":"info","method":"GET","path_parameters":{"0":"pokedex"},"query_parameters":{"partyPokemon":""},"timestamp":"2024-04-17T18:31:53.421Z"}
+{"body":{},"endpoint":"/pokedex","ip":"::1","level":"info","method":"GET","path_parameters":{"0":"pokedex"},"query_parameters":{"partyPokemon":""},"timestamp":"2024-04-17T18:52:03.211Z"}
+{"body":{},"endpoint":"/pokedex","ip":"::1","level":"info","method":"GET","path_parameters":{"0":"pokedex"},"query_parameters":{"partyPokemon":""},"timestamp":"2024-04-17T18:54:58.623Z"}

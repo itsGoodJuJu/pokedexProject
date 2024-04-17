@@ -6,7 +6,7 @@ CREATE TABLE pokedex (
     primary_type VARCHAR(50) NOT NULL,
     secondary_type VARCHAR(50) NULL,
     hp INTEGER NOT NULL,
-    physical INTEGER NOT NULL,
+    attack INTEGER NOT NULL,
     defense INTEGER NOT NULL,
     spatk INTEGER NOT NULL,
     spdef INTEGER NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE pokedex (
     weight_lbs NUMERIC(5,1) NOT NULL,
     bst INTEGER NOT NULL,
     image VARCHAR(500) NOT NULL
-    );
+);
 
 CREATE TABLE partyPokemon (
     id SERIAL PRIMARY KEY, 
@@ -25,7 +25,7 @@ CREATE TABLE partyPokemon (
     primary_type VARCHAR(50) NOT NULL,
     secondary_type VARCHAR(50) NULL,
     hp INTEGER NOT NULL,
-    physical INTEGER NOT NULL,
+    attack INTEGER NOT NULL,
     defense INTEGER NOT NULL,
     spatk INTEGER NOT NULL,
     spdef INTEGER NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE partyPokemon (
     image VARCHAR(500) NOT NULL,
     moves VARCHAR(500)[]
     -- abilities VARCHAR(500)[]
-    );
+);
 
 
 CREATE TABLE opponentPokemon (
@@ -42,7 +42,7 @@ CREATE TABLE opponentPokemon (
     primary_type VARCHAR(50) NOT NULL,
     secondary_type VARCHAR(50) NULL,
     hp INTEGER NOT NULL,
-    physical INTEGER NOT NULL,
+    attack INTEGER NOT NULL,
     defense INTEGER NOT NULL,
     spatk INTEGER NOT NULL,
     spdef INTEGER NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE opponentPokemon (
     image VARCHAR(500) NOT NULL,
     moves VARCHAR(500)[]
     -- abilities VARCHAR(500)[]
-    );
+);
 
 CREATE TABLE moves (
     id SERIAL PRIMARY KEY, 
@@ -59,11 +59,27 @@ CREATE TABLE moves (
     category VARCHAR(50) NOT NULL,
     power INTEGER NULL,
     accuracy INTEGER NOT NULL
-    );
+);
+
+CREATE TABLE battle (
+    id SERIAL PRIMARY KEY, 
+    type VARCHAR(50) NOT NULL,
+    strengths VARCHAR(50)[] NULL,
+    weaknesses VARCHAR(50)[] NOT NULL,
+    immunities VARCHAR(50)[] NULL,
+    noeffect VARCHAR(50)[] NULL
+);
+
+CREATE TABLE stages (
+    id SERIAL PRIMARY KEY, 
+    name VARCHAR(50) NOT NULL,
+    background VARCHAR(5000) NOT NULL,
+    music  VARCHAR(500)NOT NULL
+);
 
 
 
-INSERT INTO pokedex (name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, evolution_stage, region_of_origin, height, weight_lbs, bst, image)
+INSERT INTO pokedex (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, evolution_stage, region_of_origin, height, weight_lbs, bst, image)
 VALUES ('Stufful', 'normal', 'fighting', 70, 75, 50, 45, 50, 50, 1, 'Alola', '1''08"', 15, 340,'https://img.pokemondb.net/artwork/avif/stufful.avif'),
     ('Bounsweet', 'grass', NULL, 42, 30, 38, 30, 38, 32, 1, 'Alola', '1''00"', 7.1, 210,'https://img.pokemondb.net/artwork/avif/bounsweet.avif'),
     ('Comfey', 'fairy', NULL, 51, 52, 90, 82, 110, 100, NULL, 'Alola', '0''04"', 0.7, 485,'https://img.pokemondb.net/artwork/avif/comfey.avif'),
@@ -95,7 +111,7 @@ RETURNING *;
 
 
 
--- INSERT INTO partyPokemon (name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image, moves, abilities)
+-- INSERT INTO partyPokemon (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image, moves, abilities)
 -- VALUES ('Stufful', 'normal', 'fighting', 120, 75, 100, 80, 115, 50, 'https://img.pokemondb.net/artwork/avif/stufful.avif', '{}', '{Fluffy, Klutz}')
 --     -- ('Bounsweet', 'grass', null, 120, 75, 100, 80, 115, 32, 'https://img.pokemondb.net/artwork/avif/bounsweet.avif', '{}', '{Leaf Guard, Oblivious}'),
 --     -- ('Comfey', 'fairy', null, 120, 75, 100, 80, 115, 100, 'https://img.pokemondb.net/artwork/avif/comfey.avif', '{}', '{Flower Veil, Triage}'),
@@ -193,11 +209,48 @@ VALUES ('thunder shock', 'electric', 'special', 40, 100),
     RETURNING *;
 
 
-SELECT * FROM pokedex ORDER BY RANDOM() LIMIT 6;
+INSERT INTO battle (type, strengths, weaknesses, immunities, noeffect)
+VALUES ('normal', null, '{rock, steel}', '{ghost}', '{ghost}'),
+    ('fighting', '{normal, rock, steel, ice, dark}', '{flying, posion, psychic, bug, ghost, fairy}', null, '{ghost}'),
+    ('flying', '{fighting, bug, grass}', '{rock, steel, electric}', '{ground}', null),
+    ('poison', '{grass, fairy}', '{poison, ground, rock, ghost}', null, '{steel}'),
+    ('ground', '{poison, rock, steel, fire, electric}', '{bug, grass}', '{electric}', '{flying}'),
+    ('rock', '{flying, bug, fire, ice}', '{fighting, ground, steel}', null, null),
+    ('bug', '{grass, psychic, dark}', '{fighting, flying, posion, ghost, steel, fire, fairy}', null, null),
+    ('ghost', '{ghost, psychic}', '{dark}', '{normal, fighting}', '{normal}'),
+    ('steel', '{rock, ice, fairy}', '{steel, fire, water, electric}', '{poison}', null),
+    ('fire', '{bug, steel, grass, ice}', '{rock, fire, water, dragon}', null, null),
+    ('water', '{ground, rock, fire}', '{water, grass, dragon}', null, null),
+    ('grass', '{ground, rock, water}', '{flying, poison, bug, steel, fire, grass, dragon}', null, null),
+    ('electric', '{flying, water}', '{grass, electric, dragon}', null, '{ground}'),
+    ('psychic', '{fighting, poison}', '{steel, psychic}', null, '{dark}'),
+    ('ice', '{flying, ground, grass, dragon}', '{steel, fire, water, ice}', null, null),
+    ('dragon', '{dragon}', '{steel}', null, '{fairy}'),
+    ('dark', '{ghost, psychic}', '{fighting, dark, fairy}', '{psychic}', null),
+    ('fairy', '{fighting, dragon, dark}', '{poison, steel, fire}', '{dragon}', null),
 
-SELECT * FROM moves WHERE type = 'electric' ORDER BY RANDOM() LIMIT 1;
 
-SELECT partypokemon.id, partypokemon.name, partypokemon.primary_type, partypokemon.secondary_type, moves.name, moves.type from partypokemon INNER JOIN moves ON partypokemon.primary_type = moves.type OR partypokemon.secondary_type = moves.type WHERE partypokemon.id = 5 ORDER BY RANDOM() LIMIT 4;
+INSERT INTO stages (name, background, music)
+VALUES ('Viridian Forest', 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/0359f770-0e1b-4564-8d42-2f6de88fc7ae/dgxt9pf-1db5a4c6-1968-4381-82a0-71acd01f95c1.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzAzNTlmNzcwLTBlMWItNDU2NC04ZDQyLTJmNmRlODhmYzdhZVwvZGd4dDlwZi0xZGI1YTRjNi0xOTY4LTQzODEtODJhMC03MWFjZDAxZjk1YzEuanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.pykcCmlCau3vhgaESE_Egr1pgtL1LLGIsed5JCBw3FI', '../audio/viridianForest.mp3'),
+    ('Pokemon Gym', 'https://archives.bulbagarden.net/media/upload/5/50/Ballonlea_Stadium_battlefield.png', '../audio/gymLeader.mp3'),
+    ('Wild', 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/80ff523f-ff84-457d-a547-464588d3a3d3/dfyt06i-a628cd42-5aa0-42c9-a428-bf68c7f42196.png/v1/fill/w_1095,h_730,q_70,strp/paldea_route_background_2_by_willdinomaster55_dfyt06i-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODAwIiwicGF0aCI6IlwvZlwvODBmZjUyM2YtZmY4NC00NTdkLWE1NDctNDY0NTg4ZDNhM2QzXC9kZnl0MDZpLWE2MjhjZDQyLTVhYTAtNDJjOS1hNDI4LWJmNjhjN2Y0MjE5Ni5wbmciLCJ3aWR0aCI6Ijw9MTIwMCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.jAcpwRibX6GaqbPSe53SN3iS09DlTSWMyBs6z_h0vWQ', '../audio/wildPokemon.mp3'),
+    ('Mt. Moon', 'https://i.ytimg.com/vi/84CTJXAz5FE/maxresdefault.jpg', '../audio/mtMoon.mp3'),
+    ('Sea', 'https://www.videogameschronicle.com/files/2020/06/Pok%C3%A9mon-Sword-and-Shield-Isle-of-Armor-landscape.jpg', '../audio/seaAudio.mp3'),
+    ('Champion Battle', 'https://media.licdn.com/dms/image/D4D10AQF-bVfKDXSxgA/image-shrink_800/0/1688322707028?e=2147483647&v=beta&t=vIc6IbbDYHVpcwYS6anlNNvBPMuulMsyG3VH_SO0WpU', '../audio/championBattle.mp3'),
+    ('Pokemon Tower', 'https://i.ytimg.com/vi/pCucn1VDOME/maxresdefault.jpg', '../audio/pokemonTower.mp3')
+    RETURNING *;
+    
 
-INSERT INTO partypokemon (name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image) SELECT name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6;
+
+-- SELECT * FROM pokedex ORDER BY RANDOM() LIMIT 6;
+
+-- SELECT * FROM moves WHERE type = 'electric' ORDER BY RANDOM() LIMIT 1;
+
+-- SELECT partypokemon.id, partypokemon.name, partypokemon.primary_type, partypokemon.secondary_type, moves.name, moves.type from partypokemon INNER JOIN moves ON partypokemon.primary_type = moves.type OR partypokemon.secondary_type = moves.type WHERE partypokemon.id = 5 ORDER BY RANDOM() LIMIT 4;
+
+SELECT partypokemon.attack, partypokemon.spatk, partypokemon.defense, partypokemon.spdef, partypokemon.primary_type, partypokemon.secondary_type, moves.power, moves.accuracy FROM partypokemon INNER JOIN moves ON partypokemon.primary_type = moves.type OR partypokemon.secondary_type = moves.type;
+
+-- INSERT INTO partypokemon (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image) SELECT name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6;
+
+
 
