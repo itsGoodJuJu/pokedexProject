@@ -1,12 +1,23 @@
 
 
 const pg = require('pg-promise')();
-const db = pg("postgres://corcoding@localhost:5432/postgres")
+const db = pg("postgres://postgres:goodworks17@localhost:5432/postgres")
 const express = require('express');
 const winston = require('winston');
 
 const app = express()
 const bodyParser = require("body-parser") // for parsing application/json
+
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+
+
+
 app.use(bodyParser.json())
 
 const logger = winston.createLogger({
@@ -82,9 +93,9 @@ app.get('/pokedex', async function(req, res) {
     //         error: "Query parameters do not meet requirements"
     //     });
     // } 
-    else if((Object.keys(req.query).length != 0) && (Object.keys(req.query)[0] != "id" && Object.keys(req.query)[0] != "name" && Object.keys(req.query)[0] != "primary_type" && Object.keys(req.query)[0] != "secondary_type" && Object.keys(req.query)[0] != "evolution_stage" && Object.keys(req.query)[0] != "region_of_origin" && Object.keys(req.query)[0] != "height" && Object.keys(req.query)[0] != "weight_lbs" && Object.keys(req.query)[0] != "bst")) {
+    else if((Object.keys(req.query).length != 0) && (Object.keys(req.query)[0] != "id" && Object.keys(req.query)[0] != "name" && Object.keys(req.query)[0] != "primary_type" && Object.keys(req.query)[0] != "secondary_type" && Object.keys(req.query)[0] != "evolution_stage" && Object.keys(req.query)[0] != "region_of_origin" && Object.keys(req.query)[0] != "height" && Object.keys(req.query)[0] != "weight_lbs" && Object.keys(req.query)[0] != "bst" && Object.keys(req.query)[0] != "partyPokemon" && Object.keys(req.query)[0] != "oppoPokemon")) {
         clientError(req, "Query parameters do not meet requirements", 400);
-        // checks if parameters other than id or list are passed
+        // checks if parameters other than id, name, types, etc. are passed
         res.status(400).json({
             error: "Query parameters do not meet requirements"
         });
@@ -97,10 +108,15 @@ app.get('/pokedex', async function(req, res) {
     }
     else {
         // else is the success case
-        if(req.query.id == undefined && req.query.name == undefined && req.query.primary_type == undefined && req.query.secondary_type == undefined && req.query.evolution_stage == undefined && req.query.region_of_origin == undefined && req.query.height == undefined && req.query.weight_lbs == undefined && req.query.bst == undefined) {
+        if(req.query.id == undefined && req.query.name == undefined && req.query.primary_type == undefined && req.query.secondary_type == undefined && req.query.evolution_stage == undefined && req.query.region_of_origin == undefined && req.query.height == undefined && req.query.weight_lbs == undefined && req.query.bst == undefined && req.query.image == undefined && req.query.partyPokemon == undefined && req.query.oppoPokemon == undefined) {
             // check if an id was passed or not from the client
             // if not, return all todos
             res.json({pokedex})
+        } else if(req.query.image !== undefined) {
+            // selects data using image parameter
+            let image = req.query.image;
+            let pokeImage = await db.query('SELECT * FROM pokedex WHERE image = $1', [image])
+            res.json(pokeImage);
         } else if(req.query.bst !== undefined) {
             // selects data using BST parameter
             let bst = req.query.bst;
@@ -141,14 +157,89 @@ app.get('/pokedex', async function(req, res) {
             let name = req.query.name;
             let pokemonName = await db.query('SELECT * FROM pokedex WHERE name = $1', [name])
             res.json(pokemonName);
-        } else {
+        } else if(req.query.id !== undefined) {
             // selects data using id parameter
             let id = req.query.id;
             let pokemonId = await db.query('SELECT * FROM pokedex WHERE id = $1', [id])
             res.json(pokemonId);
+        } else if (req.query.partyPokemon !== undefined) {
+            await db.none('DROP TABLE partypokemon');
+
+            await db.none('CREATE TABLE partypokemon (id SERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL, primary_type VARCHAR(50) NOT NULL, secondary_type VARCHAR(50) NULL, hp INTEGER NOT NULL, attack INTEGER NOT NULL, defense INTEGER NOT NULL, spatk INTEGER NOT NULL, spdef INTEGER NOT NULL, speed INTEGER NOT NULL, image VARCHAR(500) NOT NULL, moves VARCHAR(500)[]);');
+
+            let partypokemon = await db.any('SELECT name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6');
+
+            for(let i = 0; i < partypokemon.length; i++) {
+                await db.any('INSERT INTO partypokemon (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [partypokemon[i].name, partypokemon[i].primary_type, partypokemon[i].secondary_type, partypokemon[i].hp, partypokemon[i].attack, partypokemon[i].defense, partypokemon[i].spatk, partypokemon[i].spdef, partypokemon[i].speed, partypokemon[i].image]);
+            }
+            // await db.any('INSERT INTO partypokemon (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image) SELECT name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6 RETURNING *;');
+
+            // Create a variable that holds all party pokemon
+            // Run a SQL query retrieve all pokemon
+
+            // Get a set of moves for each pokemon
+            // Convert array of moves to a string 
+            // Loop
+
+            // let partypokemon = select * from partpokemon;
+            
+            for(let i = 1; i <= partypokemon.length; i++){
+                let moves = await db.any('SELECT moves.name from partypokemon INNER JOIN moves ON partypokemon.primary_type = moves.type OR partypokemon.secondary_type = moves.type WHERE partypokemon.id = $1 ORDER BY RANDOM() LIMIT 4;', [i])
+            
+                for(let j=0; j < moves.length; j++) {
+                    moves[j] = moves[j].name;
+                }
+                // psql uses {} for arrays, js uses [] for arrays
+                // first, convert value to string using toString(), then concatenate with { }
+                moves = "{" + moves.toString() + "}";
+
+                await db.any('UPDATE partypokemon SET moves = $1 WHERE partypokemon.id = $2', [moves, i]);
+            }
+            
+            res.json(await db.any('SELECT * FROM partypokemon'));
+        } else if (req.query.oppoPokemon !== undefined) {
+            await db.none('DROP TABLE opponentpokemon');
+            await db.none('CREATE TABLE opponentpokemon (id SERIAL PRIMARY KEY, name VARCHAR(50) NOT NULL, primary_type VARCHAR(50) NOT NULL, secondary_type VARCHAR(50) NULL, hp INTEGER NOT NULL, attack INTEGER NOT NULL, defense INTEGER NOT NULL, spatk INTEGER NOT NULL, spdef INTEGER NOT NULL, speed INTEGER NOT NULL, image VARCHAR(500) NOT NULL, moves VARCHAR(500)[]);');
+
+            let oppopokemon = await db.any('SELECT name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6');
+
+            for(let i = 0; i < oppopokemon.length; i++) {
+                await db.any('INSERT INTO opponentpokemon (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)', [oppopokemon[i].name, oppopokemon[i].primary_type, oppopokemon[i].secondary_type, oppopokemon[i].hp, oppopokemon[i].attack, oppopokemon[i].defense, oppopokemon[i].spatk, oppopokemon[i].spdef, oppopokemon[i].speed, oppopokemon[i].image]);
+            }
+
+            for(let i = 1; i <= oppopokemon.length; i++){
+                let moves = await db.any('SELECT moves.name from opponentpokemon INNER JOIN moves ON opponentpokemon.primary_type = moves.type OR opponentpokemon.secondary_type = moves.type WHERE opponentpokemon.id = $1 ORDER BY RANDOM() LIMIT 4;', [i])
+            
+                for(let j=0; j < moves.length; j++) {
+                    moves[j] = moves[j].name;
+                }
+
+                moves = "{" + moves.toString() + "}";
+
+                await db.any('UPDATE opponentpokemon SET moves = $1 WHERE opponentpokemon.id = $2', [moves, i]);
+            }
+            
+            res.json(await db.any('SELECT * FROM opponentpokemon'));
         }
     }
 });
+
+
+
+// Marcus's get he sent during the weekend
+app.get('/getRandomPokemon', async function(req,res){ try{
+    let randomPokemon = await db.query('SELECT image FROM pokedex ORDER BY RANDOM() LIMIT 2');
+    if(randomPokemon.length === 0){
+        res.statusCode = 400
+        res.json({error: "images not found"})
+    }else{
+        res.json(randomPokemon)
+    }
+        } catch (error) {
+    res.statusCode = 400
+    res.json({error: "Action failed"})
+    }
+})
 
 
 /*
@@ -167,10 +258,15 @@ Body:
 
 // Marcus POST
 app.post('/pokedex', async function (req,res){
+    console.log(req.body.image);
     const type = [ "grass",  "water",  "fire",  "dark",  "normal",  "fairy", "electric", "ice", "fighting", "poison", "flying", "ground", "bug", "psychic", "rock", "ghost", "dragon", "steel", null];
     const regionAllowed = ["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Hisui", "Paldea", "Kitakami"];
 
-    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst)!== 'number')){
+    let rexexpNumbers = /^[0-9\s]+$/;
+    let Regexpletters = /^[a-zA-Z\s]+$/;
+    let heightregexp = /^(([0-9]+|['])([0-9]*)['])*$/;
+
+    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || (typeof(req.body.secondary_type) !== 'string')) && (!'evolution_stage' in req.body || (typeof(req.body.evolution_stage) !== 'number' && typeof(req.body.evolution_stage) !== 'null')) || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst) !== 'number') || (!'image' in req.body || typeof(req.body.image) !== 'string') || (!'moves' in req.body || typeof(req.body.moves) !== 'object')){
         // does not allow secondary_type or evolution_stage to equal null
         res.statusCode = 400
         res.json({error: "Invalid body Parameters"})
@@ -183,7 +279,14 @@ app.post('/pokedex', async function (req,res){
     } else if(!regionAllowed.includes(req.body.region_of_origin)) {
         res.statusCode = 400
         res.json({error: "Region does not exist"})
-    }
+    } else if(!Regexpletters.test(req.body.name)){
+        res.statusCode = 400
+        res.json({error: "Request body does not meet requirements"})
+    } 
+    // else if(!heightregexp.test(req.body.height)){
+    //     res.statusCode = 400
+    //     res.json({error: "height does not match criteria"})
+    // }
     else {
         console.log(req.body)
         const {
@@ -194,9 +297,11 @@ app.post('/pokedex', async function (req,res){
             region_of_origin,
             height,
             weight_lbs,
-            bst
+            bst,
+            image,
+            moves
         } = req.body
-        let pokedex = await db.query('INSERT INTO pokedex(name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *', [name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst]);
+        let pokedex = await db.query('INSERT INTO pokedex(name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst, image, moves) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *', [name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst, image, moves]);
         res.json(pokedex)
     }
   })
@@ -213,14 +318,14 @@ Body:
 // Joel PUT
 app.put('/pokedex/:name', async function(req, res) {
     // } else 
-    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst)!== 'number')){
+    if((!req.body|| typeof(req.body) !== 'object') || (!'name' in req.body || typeof(req.body.name) !== 'string') || (!'primary_type' in req.body || typeof(req.body.primary_type) !== 'string') || (!'secondary_type' in req.body || typeof(req.body.secondary_type) !== 'string') || (!'evolution_stage' in req.body|| typeof(req.body.evolution_stage) !== 'number') || (!'region_of_origin' in req.body || typeof(req.body.region_of_origin) !== 'string') || (!'height' in req.body || typeof(req.body.height) !== 'string') || (!'weight_lbs' in req.body || typeof(req.body.weight_lbs) !== 'number') || (!'bst' in req.body || typeof(req.body.bst)!== 'number') || (!'image' in req.body || typeof(req.body.image) !== 'string') || (!'moves' in req.body || typeof(req.body.moves) !== 'object')){
         res.statusCode = 400
         res.json({error: "Invalid body Parameters"})
     } else {
         console.log(req.body);
         const nameInput = req.params.name;
-        const {name,primary_type,secondary_type,evolution_stage,region_of_origin,height,weight_lbs,bst} = req.body
-        let updatedPokemon = await db.query(`UPDATE pokedex SET name =$1, primary_type=$2,secondary_type=$3,evolution_stage=$4, region_of_origin=$5, height=$6, weight_lbs=$7, bst=$8 WHERE name =$9 RETURNING *`,[name,primary_type,secondary_type,evolution_stage,region_of_origin,height,weight_lbs,bst, nameInput]);
+        const {name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst, image, moves} = req.body
+        let updatedPokemon = await db.query(`UPDATE pokedex SET name = $1, primary_type = $2,secondary_type = $3,evolution_stage = $4, region_of_origin = $5, height = $6, weight_lbs = $7, bst = $8 , image = $9, moves = $10 WHERE name = $11 RETURNING *`,[name, primary_type, secondary_type, evolution_stage, region_of_origin, height, weight_lbs, bst, image, moves, nameInput]);
         res.json(updatedPokemon);
     }
     
@@ -266,32 +371,45 @@ app.delete('/pokedex/:id', async function(req, res) {
     }
 })
 
-// app.delete('/pokedex/:id', (req, res)=> {
-//     if(Object.keys(req.body).length != 0) {
-//         res.status(400).json({error: "Request within the body is not allowed"}); 
 
-//     } else if(Object.keys(req.query).length > 1){ 
-//         clientError(req, "Query Parameters do not meet requirements", 400);
-//         res.status(400).json({error: "Query Parameters do not meet requirements"});
+// get random 6 for party
+// function pokemonParty() {
+//     app.get('/playerParty', async function(req, res) {
+//         let partyPlayer = await db.any('INSERT INTO partypokemon (name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image) SELECT name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6 RETURNING *;');
+//         // res.json(partyPlayer);
 
-//     } else if((Object.keys(req.query).length != 0) && (Object.keys(req.query)[0] != "id")){
-//         clientError(req, "Query Parameters do not meet requirements", 400);
-//         res.status(401).json({error: "Query Parameters do not meet requirements"});
+//         let partyMoves;
+//         for(i=1; i <= 6; i++) {
+//             partyMoves = await db.any('SELECT partypokemon.id, partypokemon.name, partypokemon.primary_type, partypokemon.secondary_type, moves.name, moves.type from partypokemon INNER JOIN moves ON partypokemon.primary_type = moves.type OR partypokemon.secondary_type = moves.type WHERE partypokemon.id = $1', [i]);
+            
+//         }
+//         res.json(partyMoves);
+        
+//     })
 
-//     } else if(isNaN(req.query.id) && req.query.id != undefined){
-//         clientError(req, "id provided is not a number", 400);
-//         res.status(401).json({error: "id provided is not a number"});
-//     }
-// })
+        // let pokeContainer = document.getElementById("pokemonContainer")
+        // let pokeCard = document.createElement("div");
+        // pokeCard.classList.add("card");
 
-app.delete('/pokedex/:id', async function(req, res) {
-    const id = (req.params.id);
-    let pokedexDelete = await db.query('DELETE FROM pokedex WHERE id = $1', [id]);
-    res.json(pokedexDelete);
+        // let heroImage = document.createElement("img");
 
-})
+        // let heroNameTag = document.createElement("p");
+        // let hpTag = document.createElement("p");
+
+        // heroNameTag.innerText = "Name: " + result.heros[i].data.name;
     
+// }
 
+// pokemonParty();
+
+// function oppoParty() {
+//     app.get('/oppoParty', async function(req, res) {
+//         let oppoParty = await db.any('INSERT INTO partypokemon (name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image) SELECT name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6 RETURNING *;');
+//         res.json(oppoParty);
+//     })
+// }
+
+// oppoParty();
 
 
 
@@ -299,3 +417,29 @@ app.delete('/pokedex/:id', async function(req, res) {
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
 })
+
+
+
+// DAVID'S FETCH
+// fetch('http://localhost:3000/pokedex')
+// .then(resp =>  resp.json())
+// .then(data => {
+//         // console.log(data);
+//     for(let i = 0; i < data.pokedex.length; i++) {
+//         console.log(data.pokedex[i].image)
+//     }
+    
+//     // let pokedexContainer = document.getElementById("pokemonContainer");
+//     // let pokedexCard = document.createElement("div");
+//     // pokedexCard.classList.add("card");
+
+//     // let pokemonNameTag = document.createElement("p");
+//     // let pokemonUrl = document.createElement("p");
+    
+//     // pokemonNameTag.innerText = "Name: " + user[i].name;
+//     // pokemonUrl.innerText = "Url:  " + user[i].image;
+    
+//     // pokedexCard.appendChild(pokemonNameTag);
+//     // pokedexCard.appendChild(pokemonUrl);
+//     // pokedexContainer.appendChild(pokedexCard);
+// });

@@ -1,0 +1,153 @@
+body {
+    background-image: url("https://cdnb.artstation.com/p/assets/images/images/019/647/779/large/david-oswald-photo-jul-29-2-22-51-pm.jpg?1564424705");
+    background-repeat: no-repeat;
+  }
+
+  .pokemon {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border: 12px solid black;
+    border-radius: 10px;
+    background-color: white;
+    background-image: url("https://i.pinimg.com/originals/df/4e/8b/df4e8ba28f912bf9cdf9fa0dfc196411.png");
+    object-fit: contain;
+    background-size: cover;
+
+}
+
+
+.pokemon2 {
+    position: fixed;
+    top: 0;
+    right: 0;
+    object-fit: cover;
+    border: 12px solid black;
+    border-radius: 25px;
+    background-image: url("https://i.pinimg.com/originals/df/4e/8b/df4e8ba28f912bf9cdf9fa0dfc196411.png");
+    background-color: white;
+    background-size: cover;
+
+}
+
+
+#mainBattleDiv {
+    display: flex;
+    justify-content: right; 
+}
+
+
+.pokemonImage {
+    object-fit: scale-down;
+    width: 200;
+    height: 170px;
+    
+}
+
+
+
+.battle-container {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 70.2%;
+    display: flex;
+    justify-content: space-between;
+    background-color: #e0e0e0;
+    padding: 2px;
+}
+
+
+.opponent,
+.player {
+    display: flex;
+    align-items: center;
+}
+
+.pokemon-info {
+    margin-left: 10px;
+}
+
+.hp-bar {
+    width: 100px;
+    height: 10px;
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    background-color: #32cd32;
+}
+
+.pokemon-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.divBox {
+    width: 300px;
+   }
+
+.ButtonSize {
+    grid-template-columns: 10% 10%;
+    width:150px;
+    height:60px;
+    margin: 5 auto;
+    display: inline;
+    background-color: yellow;
+    
+}
+
+.ButtonSize2 {
+    grid-template-columns: 10% 10%;
+    width:150px;
+    height:60px;
+    margin: 5 auto;
+    display: inline;
+    background-color: saddlebrown;
+    
+}
+
+.ButtonSize3 {
+    grid-template-columns: 10% 10%;
+    width:150px;
+    height:60px;
+    margin: 5 auto;
+    display: inline;
+    background-color: rgba(32, 115, 187, 0.512);
+    
+}
+
+.ButtonSize4 {
+    grid-template-columns: 10% 10%;
+    width:150px;
+    height:60px;
+    margin: 5 auto;
+    display: inline;
+    background-color: orange;
+    
+}
+
+
+
+
+#bottomBoxInner {
+    grid-template-rows: 50% 45%;
+    grid-template-columns: auto;
+    width: 100%;
+	background-color: rgb(88,144,152);
+}   
+
+.pokemonDetails {
+    font-size: 250%;
+    color:solid black;
+    height: 500%;
+    width: 500%;
+
+}
+  
+
+
+
+
