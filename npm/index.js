@@ -1,7 +1,7 @@
 
 
 const pg = require('pg-promise')();
-const db = pg("postgres://corcoding@localhost:5432/postgres")
+const db = pg("postgres://postgres:goodworks17@localhost:3000/postgres")
 const express = require('express');
 const winston = require('winston');
 
@@ -64,6 +64,7 @@ Endpoint:
 Query Parameters:
     id[number]: assigned number of the pokedex entry
 */
+document.getElementById("random").onclick = 
 
 // Justin GET
 app.get('/pokedex', async function(req, res) {
@@ -213,22 +214,192 @@ app.get('/pokedex', async function(req, res) {
     }
 });
 
+// Get for the pokemon damage Calculations
+// app.get('/dmgCalculations', async function(req,res){
+//     let pokemoncalcTable = await db.query('SELECT moves.name FROM pokedex INNER JOIN moves ON ')
+// })
 
 
-// Marcus's get he sent during the weekend
-app.get('/getRandomPokemon', async function(req,res){ try{
-    let randomPokemon = await db.query('SELECT image FROM pokedex ORDER BY RANDOM() LIMIT 2');
-    if(randomPokemon.length === 0){
-        res.statusCode = 400
-        res.json({error: "images not found"})
-    }else{
-        res.json(randomPokemon)
+// ATTACK ENDPOINT
+app.get('/battle', async function(req, res) {
+  
+    let inBattle = 1;
+    // SELECTS the pokemon's name
+    let pokeName = await db.any('SELECT name FROM partypokemon where id = $1', inBattle);
+    pokeName = pokeName[0].name;
+    console.log(pokeName);
+
+    // SELECTS the opponent pokemon's name
+    let oppoName = await db.any('SELECT name FROM opponentpokemon where id = $1', inBattle);
+    oppoName = oppoName[0].name;
+    console.log(oppoName);
+
+    // SELECTS the name of the move being used
+    let moveName = await db.any('SELECT moves[1] FROM partypokemon WHERE name = $1', pokeName);
+    moveName = moveName[0].moves;
+    console.log(moveName);
+
+    // SELECTS the attack stat of the attacking pokemon
+    let atkStat = await db.any('SELECT attack FROM partypokemon WHERE name = $1', pokeName);
+    atkStat = atkStat[0].attack;
+    console.log(atkStat);
+
+    // SELECTS the special attack stat of the attacking pokemon
+    // let spatkStat = await db.any('SELECT spatk FROM partypokemon WHERE name = $1', pokeName);
+    // spatkStat = spatkStat[0].spatk;
+    // console.log(spatkStat);
+
+    // SELECTS the attack power of the move being used
+    let atkPower = await db.any('SELECT power FROM moves WHERE name = $1', moveName);
+    atkPower = atkPower[0].power;
+    console.log(atkPower);
+
+    // SELECTS the defense stat of the opposing pokemon
+    let defStat = await db.any('SELECT defense FROM opponentpokemon WHERE name = $1', oppoName);
+    defStat = defStat[0].defense;
+    console.log(defStat);
+
+    // SELECTS the hp stat of the opposing pokemonm
+    let oppoHP = await db.any('SELECT hp FROM opponentpokemon WHERE name = $1', oppoName);
+    oppoHP = oppoHP[0].hp;
+    console.log(oppoHP);
+
+    
+    // SELECTS the special defense stat of the opposing pokemon
+    // let spdefStat = await db.any('SELECT spdef FROM partypokemon WHERE name = $1', pokeName);
+    // spdefStat = spdefStat[0].spdef;
+    // console.log(spdefStat);
+
+    let stab = 1.5;
+    let type1Effect = 2;
+    let type2Effect = 0.5;
+
+    // calculations
+    let damage = Math.ceil(((((((2 / 5) + 2) * atkPower * atkStat / defStat)/50)+2) * type1Effect * type2Effect * stab));
+    console.log(damage);
+
+    // let A = (atkStat + atkPower)/4;
+    // let D = Math.sqrt(defStat) * 1.25;
+    // let dmg = A - D * type1Effect * type2Effect;
+
+
+    let remainingHP = oppoHP - damage;
+    if(remainingHP < 0) {
+        remainingHP = 0;
     }
-        } catch (error) {
-    res.statusCode = 400
-    res.json({error: "Action failed"})
+
+    
+
+    // UPDATE opponent's health after the attack
+    let opponentHealth = await db.any('UPDATE opponentpokemon SET hp = $1 WHERE name = $2 RETURNING *', [remainingHP, oppoName]);
+
+    if(remainingHP = 0) {
+        await db.any('DELETE FROM partypokemon WHERE hp = 0');
     }
+
+    
+    res.json(opponentHealth);
+
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// app.get('/calulations/:moveName', async function (req,res){ try {
+//         const moveName = req.params.moveName
+
+//         //I want to Query the moves database
+//         const moveQuery = await db.query('SELECT power, type, category FROM moves WHERE name = $1', [moveName])
+//         const move = moveQuery.rows[0]
+
+//         if (!move){
+//             res.statusCode = 400
+//             res.json({error: 'move not found'})
+//         }
+//         // allows you to target the power of the move from the moveQuery.row[0] array
+//         const movePower = move.power
+//         const moveType = move.type
+//         const moveCat = move.category
+
+//         //this is where i will check wgat the primary and secondary type type of the party pokemons is
+//         // will have to edit the table a little bit to have another value where inbattle will = true
+//         //then i can use a query to select the primary type and secondary type of the pokemon with the inbattle = true
+//         //and then use that to determine if the move being used is effective, super effective, not very effective, or has no effect
+//         //'SELECT primary_type, secondary_type FROM partyPokemon WHERE inbattle = true'
+//         //which means I will need the battle button to set what ever pokemon that is selected on the page for the inbattle to be set from false to true and when another pokemon is seleted the previous pokemon seletected inbattle will be set back to false and the pokemon that is being selected instead is set to true
+//         pokemonType = 'grass'
+
+//         //query the partypokemon database
+//         const pokemonQuery = await db.query('SELECT physical, defense, spatk, spdef, hp FROM partpokemon WHERE name = $1', [pokemonType])
+
+//         const pokemonStats = pokemonQuery.rows[0]
+
+//         if(!pokemonStats){
+//             res.statusCode = 400
+//             res.json({error: "Pokemon not found"})
+//         }
+        
+//         //create variables to use to target the physical defense, spatk, and spdef stats of the pokemon
+//         const pokemonphysicalStat = pokemonStats.physical
+//         const pokemondefenseStat = pokemonStats.defense
+//         const pokemonspatkStat = pokemonStats.spatk
+//         const pokemonspdefStat = pokemonStats.spdef
+//         const pokemonhpStat = pokemonStats.hp
+
+//         //calculate the values of a nd d and asp and dsp
+//         let a = (pokemonphysicalStat + movePower) / 4;
+//         let d = Math.sqrt(pokemondefenseStat) * 1.2;
+//         let asp = (pokemonspatkStat + movePower) / 4
+//         let dsp = Math.sqrt(pokemonspdefStat) * 1.2
+//         let moveResult = (a - d)
+//         let spmoveResult = (asp - dsp)
+        
+//         //I want to use these calculations to add if else statments to check if the pokemon inbattle type or types will cause the move to do neutral damadge little damage extra damage or no damage
+//         // then i iwant to use that calculation to make it to where if a move is super effective it does 1.2 extra damage and if its netruel it does the base and if its not very effective it does .5 less damage and if it has no effect it does 0 damge to the pokemons hp using the results
+//         // final objective is to make this code work of what ever move button is being used so when a button is being used it automatically grabs the move being used and it checkes for it in the moveQuery.rows[0] by using the endpoint in a button
+//         // and continues with the rest of the code and calculates how much damage that move will do to the opponent pokemon
+//         //which means i will also have to grab the opponets pokemons hp as well
+        
+        
+
+
+
+
+//     } catch (err){
+//         res.statusCode = 400
+//         res.json({error: "An Error has occured"})
+//     }
+// })
+
+// // Marcus's get he sent during the weekend
+// app.get('/getRandomPokemon', async function(req,res){ try{
+//     let randomPokemon = await db.query('SELECT image FROM pokedex ORDER BY RANDOM() LIMIT 2');
+//     if(randomPokemon.length === 0){
+//         res.statusCode = 400
+//         res.json({error: "images not found"})
+//     }else{
+//         res.json(randomPokemon)
+//     }
+//         } catch (error) {
+//     res.statusCode = 400
+//     res.json({error: "Action failed"})
+//     }
+// })
 
 
 /*
