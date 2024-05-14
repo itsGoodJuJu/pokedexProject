@@ -1,7 +1,7 @@
 
 
 const pg = require('pg-promise')();
-const db = pg("postgres://corcoding@localhost:5432/postgres")
+const db = pg("postgres://postgres:goodworks17@localhost:3000/postgres")
 const express = require('express');
 const winston = require('winston');
 
@@ -64,6 +64,7 @@ Endpoint:
 Query Parameters:
     id[number]: assigned number of the pokedex entry
 */
+document.getElementById("random").onclick = 
 
 // Justin GET
 app.get('/pokedex', async function(req, res) {
@@ -212,7 +213,6 @@ app.get('/pokedex', async function(req, res) {
         }
     }
 });
-
 
 
 // // Marcus's get he sent during the weekend
