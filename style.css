@@ -1,12 +1,17 @@
 /* Body with temporary battleground image */
 body{
-    background-image: url(./images/battlefield.png);
+    background-image: url(./images/virdianForest.jpeg);
     background-repeat: no-repeat;
     background-size: cover;
 }
 
-#pokeParties {
+h1 {
+    color: #ffcc00;
+}
+
+#partyButtons {
     display: grid;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
     /* align-items: right ;
     justify-content: right; */
@@ -14,180 +19,232 @@ body{
 
 
 
-
-
-
-
-
-/* Container for pokemon */
-/* .pokecontainer{
-width: 100%;
-height: 100%; 
-position: absolute;
-top: 60%;
-display: flex;
-justify-content: space-evenly;
-} */
-
-
-/* pokemon 1 stats container */
-/* #pokeMon1{
-    width: 400px;
-    height: 200px;
-    color: white;
-    font-size: small bold;
-    margin: 20px;
-} */
-
-/* pokemon 2 stats container */
-/* #pokeMon2{
-    width: 400px;
-    height: 200px;
-    color: white;
-    font-size: small bold;
-    margin: 20px;
-
-} */
-  /* pokemon1 styling AND stlying */
-
-/* #pokemonSprite1 {
-  position: absolute;
-  top: 140px;
-  left: 0%;
-  width: 40%;
-  height: 40%;
-  animation: shake .5s;
-  animation-iteration-count: 7; 
-}
-@keyframes shake {
-  0% { transform: translate(1px, 1px) rotate(0deg); }
-  10% { transform: translate(-1px, -2px) rotate(-1deg); }
-  20% { transform: translate(-3px, 0px) rotate(1deg); }
-  30% { transform: translate(3px, 2px) rotate(0deg); }
-  40% { transform: translate(1px, -1px) rotate(1deg); }
-  50% { transform: translate(-1px, 2px) rotate(-1deg); }
-  60% { transform: translate(-3px, 1px) rotate(0deg); }
-  70% { transform: translate(3px, 1px) rotate(-1deg); }
-  80% { transform: translate(-1px, -1px) rotate(1deg); }
-  90% { transform: translate(1px, 2px) rotate(0deg); }
-  100% { transform: translate(1px, -2px) rotate(-1deg); }
-} */
-
-
-
-/* pokemon2 styling AND animation*/
-/* #pokemonSprite2 {
-  position: absolute;
-  top: 140px;
-  right: 5%;
-  width: 40%;
-  height: 40%;
-  -webkit-animation: bounce-in-top 1.1s both;
-  animation: bounce-in-top 1.1s both;
+.playerteam {
+    border: solid 2px black;
+    border-radius: 50%;
+    background-color: darkgray;
+    height: 25%;
+    width: 25%;
 
 }
 
- @-webkit-keyframes bounce-in-top {
-  0% {
-    -webkit-transform: translateY(-500px);
-            transform: translateY(-500px);
-    -webkit-animation-timing-function: ease-in;
-            animation-timing-function: ease-in;
-    opacity: 0;
-  }
-  38% {
-    -webkit-transform: translateY(0);
-            transform: translateY(0);
-    -webkit-animation-timing-function: ease-out;
-            animation-timing-function: ease-out;
-    opacity: 1;
-  }
-  55% {
-    -webkit-transform: translateY(-65px);
-            transform: translateY(-65px);
-    -webkit-animation-timing-function: ease-in;
-            animation-timing-function: ease-in;
-  }
-  72% {
-    -webkit-transform: translateY(0);
-            transform: translateY(0);
-    -webkit-animation-timing-function: ease-out;
-            animation-timing-function: ease-out;
-  }
-  81% {
-    -webkit-transform: translateY(-28px);
-            transform: translateY(-28px);
-    -webkit-animation-timing-function: ease-in;
-            animation-timing-function: ease-in;
-  }
-  90% {
-    -webkit-transform: translateY(0);
-            transform: translateY(0);
-    -webkit-animation-timing-function: ease-out;
-            animation-timing-function: ease-out;
-  }
-  95% {
-    -webkit-transform: translateY(-8px);
-            transform: translateY(-8px);
-    -webkit-animation-timing-function: ease-in;
-            animation-timing-function: ease-in;
-  }
-  100% {
-    -webkit-transform: translateY(0);
-            transform: translateY(0);
-    -webkit-animation-timing-function: ease-out;
-            animation-timing-function: ease-out;
-  }
+.oppoteam {
+    border: solid 2px black;
+    border-radius: 50%;
+    background-color: darkgray;
+    height: 25%;
+    width: 25%;
+
 }
-@keyframes bounce-in-top {
-  0% {
-    -webkit-transform: translateY(-500px);
-            transform: translateY(-500px);
-    -webkit-animation-timing-function: ease-in;
-            animation-timing-function: ease-in;
-    opacity: 0;
-  }
-  38% {
-    -webkit-transform: translateY(0);
-            transform: translateY(0);
-    -webkit-animation-timing-function: ease-out;
-            animation-timing-function: ease-out;
-    opacity: 1;
-  }
-  55% {
-    -webkit-transform: translateY(-65px);
-            transform: translateY(-65px);
-    -webkit-animation-timing-function: ease-in;
-            animation-timing-function: ease-in;
-  }
-  72% {
-    -webkit-transform: translateY(0);
-            transform: translateY(0);
-    -webkit-animation-timing-function: ease-out;
-            animation-timing-function: ease-out;
-  }
-  81% {
-    -webkit-transform: translateY(-28px);
-            transform: translateY(-28px);
-    -webkit-animation-timing-function: ease-in;
-            animation-timing-function: ease-in;
-  }
-  90% {
-    -webkit-transform: translateY(0);
-            transform: translateY(0);
-    -webkit-animation-timing-function: ease-out;
-            animation-timing-function: ease-out;
-  }
-  95% {
-    -webkit-transform: translateY(-8px);
-            transform: translateY(-8px);
-    -webkit-animation-timing-function: ease-in;
-            animation-timing-function: ease-in;
-  }
-  100% {
-    -webkit-transform: translateY(0);
-            transform: translateY(0);
-    -webkit-animation-timing-function: ease-out;
-            animation-timing-function: ease-out;
-  }
+
+.playerPoke {
+    /* padding-top: 1%; */
+    display: flex;
+    flex-direction: column;
+    /* align-items: end; */
+    /* justify-content:flex-end; */
+
+}
+
+.oppoPoke {
+    padding-top: 1%;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    /* justify-content:flex-end; */
+
+}
+
+#oppoParty {
+    /* border: solid 2px black; */
+    display: flex;
+    flex-direction: column;
+    /* justify-content:flex-end; */
+}
+
+#roster {
+    display: flex;
+    /* flex-direction: row; */
+    align-items: end;
+    justify-content:space-between;
+}
+
+.hp-bar {
+    width: 100px;
+    height: 10px;
+    background-color: #ddd;
+    border-radius: 5px;
+}
+.hp-bar-fill {
+    height: 100%;
+    background-color: limegreen;
+}
+
+#battleBox {
+    display: flex;
+    justify-content: center;
+    
+}
+
+#inBattle {
+    height: 70%;
+    width: 70%;
+    margin-right: 60%;
+    border: solid 5px black;
+    border-radius: 10%;
+    background-color: darkgrey;
+}
+
+#inBattleOppo {
+    height: 70%;
+    width: 70%;
+    margin-bottom: 90%;
+    margin-left: 50%;
+    border: solid 5px black;
+    border-radius: 10%;
+    background-color: darkgrey;
+}
+
+/* #battleBoxOpponent {
+    margin-top: 5%;
 } */
+
+#trainerMoves {
+    border: solid 3px black;
+    background-color: aliceblue;
+    display: grid;
+    /* flex-direction: row; */
+    /* flex-wrap: wrap; */
+    grid-template-columns: 60% 60%;
+    justify-content:flex-start;
+    width: 10%;
+}
+
+#opponentMoves {
+    border: solid 3px black;
+    background-color: aliceblue;
+    display: grid;
+    /* flex-direction: row; */
+    /* flex-wrap: wrap; */
+    grid-template-columns: 60% 60%;
+    justify-content: center;
+}
+
+
+/* BUTTONS */
+
+.attackButton {
+    /* border: solid 2px black; */
+    border-radius: 50%;
+    font-size: 30px;
+    width: 130%;
+    background-color: rgb(235, 113, 113);
+}
+
+.button1 {
+    display: flex;
+    justify-content: left;
+}
+
+.button2 {
+    display: flex;
+    justify-content: right;
+}
+
+.btn {
+    border-radius: 0%;
+    /* font-size: 15px; */
+    height: 170%;
+    width: 20%;
+    background-color: rgb(141, 225, 249);
+}
+/* BUTTONS ^ */
+
+
+
+
+
+/* battling animation from AniCollection */
+/*base code*/
+.animated {
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+/*the animation definition*/
+@-webkit-keyframes tada {
+    0% {
+      -webkit-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1)
+    }
+    10%,
+    20% {
+      -webkit-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);
+      transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg)
+    }
+    30%,
+    50%,
+    70%,
+    90% {
+      -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+      transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg)
+    }
+    40%,
+    60%,
+    80% {
+      -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+      transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg)
+    }
+    100% {
+      -webkit-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1)
+    }
+}
+@keyframes tada {
+    0% {
+      -webkit-transform: scale3d(1, 1, 1);
+      -ms-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1)
+    }
+    10%,
+    20% {
+      -webkit-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);
+      -ms-transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg);
+      transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg)
+    }
+    30%,
+    50%,
+    70%,
+    90% {
+      -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+      -ms-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+      transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg)
+    }
+    40%,
+    60%,
+    80% {
+      -webkit-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+      -ms-transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+      transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg)
+    }
+    100% {
+      -webkit-transform: scale3d(1, 1, 1);
+      -ms-transform: scale3d(1, 1, 1);
+      transform: scale3d(1, 1, 1)
+    }
+}
+.tada {
+    -webkit-animation-name: tada;
+    animation-name: tada
+}
+  
+
+
+
+
+
+
+
+

@@ -32,7 +32,6 @@ CREATE TABLE partyPokemon (
     speed INTEGER NOT NULL,
     image VARCHAR(500) NOT NULL,
     moves VARCHAR(500)[]
-    -- abilities VARCHAR(500)[]
 );
 
 
@@ -49,7 +48,6 @@ CREATE TABLE opponentPokemon (
     speed INTEGER NOT NULL,
     image VARCHAR(500) NOT NULL,
     moves VARCHAR(500)[]
-    -- abilities VARCHAR(500)[]
 );
 
 CREATE TABLE moves (
@@ -146,7 +144,7 @@ VALUES ('thunder shock', 'electric', 'special', 40, 100),
     ('bite', 'dark', 'physical', 60, 100),
     ('power gem', 'rock', 'special', 80, 100),
     ('ice beam', 'ice', 'special', 90, 100),
-    ('posion jab', 'poison', 'physical', 80, 100),
+    ('poison jab', 'poison', 'physical', 80, 100),
     ('ice spinner', 'ice', 'physical', 80, 100),
     ('bulldoze', 'ground', 'physical', 60, 100),
     ('fairy wind', 'fairy', 'special', 40, 100),
@@ -227,7 +225,8 @@ VALUES ('normal', null, '{rock, steel}', '{ghost}', '{ghost}'),
     ('ice', '{flying, ground, grass, dragon}', '{steel, fire, water, ice}', null, null),
     ('dragon', '{dragon}', '{steel}', null, '{fairy}'),
     ('dark', '{ghost, psychic}', '{fighting, dark, fairy}', '{psychic}', null),
-    ('fairy', '{fighting, dragon, dark}', '{poison, steel, fire}', '{dragon}', null),
+    ('fairy', '{fighting, dragon, dark}', '{poison, steel, fire}', '{dragon}', null)
+RETURNING *;
 
 
 INSERT INTO stages (name, background, music)
@@ -248,7 +247,7 @@ VALUES ('Viridian Forest', 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.
 
 -- SELECT partypokemon.id, partypokemon.name, partypokemon.primary_type, partypokemon.secondary_type, moves.name, moves.type from partypokemon INNER JOIN moves ON partypokemon.primary_type = moves.type OR partypokemon.secondary_type = moves.type WHERE partypokemon.id = 5 ORDER BY RANDOM() LIMIT 4;
 
-SELECT partypokemon.attack, partypokemon.spatk, partypokemon.defense, partypokemon.spdef, partypokemon.primary_type, partypokemon.secondary_type, moves.power, moves.accuracy FROM partypokemon INNER JOIN moves ON partypokemon.primary_type = moves.type OR partypokemon.secondary_type = moves.type;
+-- SELECT partypokemon.attack, partypokemon.spatk, partypokemon.defense, partypokemon.spdef, partypokemon.primary_type, partypokemon.secondary_type, moves.power, moves.accuracy FROM partypokemon INNER JOIN moves ON partypokemon.primary_type = moves.type OR partypokemon.secondary_type = moves.type;
 
 -- INSERT INTO partypokemon (name, primary_type, secondary_type, hp, attack, defense, spatk, spdef, speed, image) SELECT name, primary_type, secondary_type, hp, physical, defense, spatk, spdef, speed, image FROM pokedex ORDER BY RANDOM() LIMIT 6;
 

@@ -20,7 +20,7 @@ const logger = winston.createLogger({
     ],
   });
 
-  function clientError(req, message, errorCode) {
+function clientError(req, message, errorCode) {
     logger.log({
         level: "info",
         endpoint: req.path,
@@ -389,10 +389,221 @@ app.delete('/pokedex/:id', async function(req, res) {
     
 // }
 
-// ATTACK ENDPOINT
-// app.get('/battle', async function(req, res) {
-//     await db.any('SELECT ')
-// })
+
+
+
+let currentOppo = 1;
+let remainingHP;
+
+async function currentOpponent() {
+    console.log(currentOppo)
+    if(remainingHP == 0) {
+        await db.any('DELETE FROM opponentpokemon WHERE hp = 0 RETURNING *');
+        currentOppo++;
+        console.log(currentOppo);
+    }
+}
+
+// ATTACK Opponent ENDPOINT
+app.get('/battleOpponent', async function(req, res) {
+    let chosenMove = req.query.attack;
+    console.log(chosenMove)
+    if(currentOppo == 7){
+        res.json("All of the opponent's pokémon have fainted! Opponent ran to the Pokemon Center.");
+    } else {
+        console.log(currentOppo);
+        
+        // SELECTS the pokemon's name
+        let pokeName = await db.any('SELECT name FROM partypokemon where id = $1', currentPoke);
+        pokeName = pokeName[0].name;
+        console.log(pokeName);
+
+        // SELECTS the opponent pokemon's name
+        let oppoName = await db.any('SELECT name FROM opponentpokemon where id = $1', currentOppo);
+        oppoName = oppoName[0].name;
+        console.log(oppoName);
+
+        // SELECTS the name of the move being used
+        let moveName = await db.any('SELECT moves[$1] FROM partypokemon WHERE name = $2', [chosenMove, pokeName]);
+        moveName = moveName[0].moves;
+        console.log(moveName);
+
+        // select type from moves where name = $1, moveName
+
+        // SELECTS the attack stat of the attacking pokemon
+        let atkStat = await db.any('SELECT attack FROM partypokemon WHERE name = $1', pokeName);
+        atkStat = atkStat[0].attack;
+        // console.log(atkStat);
+
+        // SELECTS the special attack stat of the attacking pokemon
+        // let spatkStat = await db.any('SELECT spatk FROM partypokemon WHERE name = $1', pokeName);
+        // spatkStat = spatkStat[0].spatk;
+        // console.log(spatkStat);
+
+        // SELECTS the attack power of the move being used
+        let atkPower = await db.any('SELECT power FROM moves WHERE name = $1', moveName);
+        atkPower = atkPower[0].power;
+        // console.log(atkPower);
+
+        // SELECTS the defense stat of the opposing pokemon
+        let defStat = await db.any('SELECT defense FROM opponentpokemon WHERE name = $1', oppoName);
+        defStat = defStat[0].defense;
+        // console.log(defStat);
+
+        // SELECTS the hp stat of the opposing pokemonm
+        let oppoHP = await db.any('SELECT hp FROM opponentpokemon WHERE name = $1', oppoName);
+        oppoHP = oppoHP[0].hp;
+        // console.log(oppoHP);
+
+        // SELECTS the special defense stat of the opposing pokemon
+        // let spdefStat = await db.any('SELECT spdef FROM partypokemon WHERE name = $1', pokeName);
+        // spdefStat = spdefStat[0].spdef;
+        // console.log(spdefStat);
+
+        let stab = 1.5;
+        let type1Effect = 2;
+        let type2Effect = 0.5;
+
+        // calculations
+        let damage = Math.ceil(((((((2 / 5) + 2) * atkPower * atkStat / defStat)/50)+2) * type1Effect * type2Effect * stab));
+        console.log(damage);
+
+        // let A = (atkStat + atkPower)/4;
+        // let D = Math.sqrt(defStat) * 1.25;
+        // let dmg = A - D * type1Effect * type2Effect;
+
+        // if hp calculation results in less than 0, then hp = 0
+        remainingHP = oppoHP - damage;
+        if(remainingHP < 0) {
+            remainingHP = 0;
+        }
+        console.log(remainingHP);
+
+        // UPDATE opponent's health after the attack
+        let opponentHealth = await db.any('UPDATE opponentpokemon SET hp = $1 WHERE name = $2 RETURNING *', [remainingHP, oppoName]);
+
+        // function to check if HP is 0 and to increment to next pokemon id
+        currentOpponent();
+
+        res.json(opponentHealth);
+    }
+})
+
+let currentPoke = 1;
+let remainingPokeHP;
+
+async function currentPokemon() {
+    console.log(currentPoke)
+    if(remainingPokeHP == 0) {
+        await db.any('DELETE FROM partypokemon WHERE hp = 0 RETURNING *');
+        currentPoke++;
+        console.log(currentPoke);
+    }
+}
+
+// ATTACK Player ENDPOINT
+app.get('/battlePlayer', async function(req, res) {
+    // chosen move needs to be at least 0 and at max 3
+    let chosenMove = req.query.attack;
+    if(currentPoke == 7){
+        res.json("All of your pokémon have fainted! You paid $1000 and fled to the Pokemon Center.");
+    } else {
+        console.log(currentPoke);
+        
+        // SELECTS the pokemon's name
+        let pokeName = await db.any('SELECT name FROM partypokemon where id = $1', currentPoke);
+        pokeName = pokeName[0].name;
+        console.log(pokeName);
+
+        // SELECTS the opponent pokemon's name
+        let oppoName = await db.any('SELECT name FROM opponentpokemon where id = $1', currentOppo);
+        oppoName = oppoName[0].name;
+        console.log(oppoName);
+
+        // SELECTS the name of the move being used
+        let moveName = await db.any('SELECT moves[$1] FROM opponentpokemon WHERE name = $2', [chosenMove, oppoName]);
+        moveName = moveName[0].moves;
+        console.log(moveName);
+
+        // select type from moves where name = $1, moveName
+
+        // SELECTS the attack stat of the attacking pokemon
+        let atkStat = await db.any('SELECT attack FROM opponentpokemon WHERE name = $1', oppoName);
+        atkStat = atkStat[0].attack;
+        // console.log(atkStat);
+
+        // SELECTS the special attack stat of the attacking pokemon
+        // let spatkStat = await db.any('SELECT spatk FROM partypokemon WHERE name = $1', pokeName);
+        // spatkStat = spatkStat[0].spatk;
+        // console.log(spatkStat);
+
+        // SELECTS the attack power of the move being used
+        let atkPower = await db.any('SELECT power FROM moves WHERE name = $1', moveName);
+        atkPower = atkPower[0].power;
+        // console.log(atkPower);
+
+        // SELECTS the defense stat of the opposing pokemon
+        let defStat = await db.any('SELECT defense FROM partypokemon WHERE name = $1', pokeName);
+        defStat = defStat[0].defense;
+        // console.log(defStat);
+
+        // SELECTS the hp stat of the opposing pokemonm
+        let pokeHP = await db.any('SELECT hp FROM partypokemon WHERE name = $1', pokeName);
+        pokeHP = pokeHP[0].hp;
+        // console.log(oppoHP);
+
+        // SELECTS the special defense stat of the opposing pokemon
+        // let spdefStat = await db.any('SELECT spdef FROM partypokemon WHERE name = $1', pokeName);
+        // spdefStat = spdefStat[0].spdef;
+        // console.log(spdefStat);
+
+        let stab = 1.5;
+        let type1Effect = 2;
+        let type2Effect = 0.5;
+
+        // calculations
+        let damage = Math.ceil(((((((2 / 5) + 2) * atkPower * atkStat / defStat)/50)+2) * type1Effect * type2Effect * stab));
+        console.log(damage);
+
+        // let A = (atkStat + atkPower)/4;
+        // let D = Math.sqrt(defStat) * 1.25;
+        // let dmg = A - D * type1Effect * type2Effect;
+
+        // if hp calculation results in less than 0, then hp = 0
+        remainingPokeHP = pokeHP - damage;
+        if(remainingPokeHP < 0) {
+            remainingPokeHP = 0;
+        }
+        console.log(remainingPokeHP);
+
+        // UPDATE opponent's health after the attack
+        let pokemonHealth = await db.any('UPDATE partypokemon SET hp = $1 WHERE name = $2 RETURNING *', [remainingPokeHP, pokeName]);
+
+        // function to check if HP is 0 and to increment to next pokemon id
+        currentPokemon();
+
+        res.json(pokemonHealth);
+    }
+})
+
+
+// AUDIO for the backgrounds: from David
+app.get('/backgroundAudio', async (req, res) => {
+    try {
+        const audioData = await db.many('SELECT name,image,music FROM stages');
+            if (!audioData || audioData.length === 0) {
+            return res.status(200).json({ error: 'No background audio data found' });
+        }
+         // Process each row with a for-loop
+        for (let i = 0; i < audioData.length; i++) {
+            console.log(audioData[i])
+        }
+        res.json(audioData);
+    } catch (error) {
+        console.error('Failed to get background audio data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 
 // listen
@@ -400,6 +611,20 @@ app.listen(3000, () => {
     console.log("Server is running on port 3000");
 })
 
+
+// let x = document.getElementById("pokeaudio");
+// function playAudio() {
+//     x.play();
+// }
+
+// playAudio();
+
+// function playMusic(){
+//     var music = new Audio('audio/wildPokemon.mp3');
+//     music.play();
+//     };
+
+// playMusic();
 
 
 // DAVID'S FETCH

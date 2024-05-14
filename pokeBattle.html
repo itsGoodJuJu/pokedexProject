@@ -9,33 +9,126 @@
 <body>
     <h1>Pokémon Battle</h1>
     
-    <div id="pokeParties">
+    <div id="partyButtons">
         <!-- Battle button -->
-        <button type="button" id="pokeButton" class="btn btn-primary">Prepare your team!</button>
-        <button type="button" id="pokeButton" class="btn btn-primary">Prepare opponent's team!</button>
+        <div class="button1">
+            <button onclick="playerTeam()" type="button" id="playerButton" class="btn btn-primary">Prepare your team!</button>
+        </div>
+        <div class="button2">
+            <button onclick="opponentTeam()" type="button" id="oppoButton" class="btn btn-primary">Prepare opponent's team!</button>
+        </div>
     </div>
 
-    <div id ="pokemonContainer" class="pokemonContainer">
 
+    <div id="roster">
+        <div id ="playerParty" class="pokemonContainer">
+            <div id="pokemonPic1" class="playerPoke">
+                <img class="playerteam" src="images/stufful.png" alt="">
+            </div>
+            <div id="pokemonPic2" class="playerPoke">
+                <img class="playerteam" src="images/clodsire.png" alt="">
+            </div>
+            <div id="pokemonPic3" class="playerPoke">
+                <img class="playerteam" src="images/quaxly.png" alt="">
+            </div>
+            <div id="pokemonPic4" class="playerPoke">
+                <img class="playerteam" src="images/tinkaton.png" alt="">
+            </div>
+            <div id="pokemonPic5" class="playerPoke">
+                <img class="playerteam" src="images/kommo-o.png" alt="">
+            </div>
+            <div id="pokemonPic6" class="playerPoke">
+                <img class="playerteam" src="images/raboot.png" alt="">
+            </div>
+        </div>
+
+        <div id="battleBox" class="tada animated">
+            <img src="images/stufful.png" alt="Stufful" id="inBattle">
+        </div>
+
+        <!-- <div id="trainerMoves">
+            <div id="move1">
+                <button>Tackle</button>
+            </div>
+            <div id="move2">
+                <button>Tackle</button>
+            </div>
+            <div id="move3">
+                <button>Tackle</button>
+            </div>
+            <div id="move4">
+                <button>Tackle</button>
+            </div>
+        </div> -->
+        <div id="attack">
+            <button class="attackButton">ATTACK</button>
+        </div>
+
+        <!-- <div id="opponentMoves">
+            <div id="move1">
+                <button>Tackle</button>
+            </div>
+            <div id="move2">
+                <button>Tackle</button>
+            </div>
+            <div id="move3">
+                <button>Tackle</button>
+            </div>
+            <div id="move4">
+                <button>Tackle</button>
+            </div>
+        </div> -->
+
+        <div id="battleBoxOppo" class="tada animated">
+            <img src="images/corviknight.png" alt="Corviknight" id="inBattleOppo">
+        </div>
+
+        <div id ="oppoParty" class="pokemonContainer">
+            <div id="oppoPic1" class="oppoPoke">
+                <img class="oppoteam" src="./images/corviknight.png" alt="Stufful">
+            </div>
+            <div id="oppoPic2" class="oppoPoke">
+                <img class="oppoteam" src="images/clodsire.png" alt="clodsire">
+            </div>
+            <div id="oppoPic3" class="oppoPoke">
+                <img class="oppoteam" src="images/quaxly.png" alt="">
+            </div>
+            <div id="oppoPic4" class="oppoPoke">
+                <img class="oppoteam" src="images/tinkaton.png" alt="">
+            </div>
+            <div id="oppoPic5" class="oppoPoke">
+                <img class="oppoteam" src="images/kommo-o.png" alt="">
+            </div>
+            <div id="oppoPic6" class="oppoPoke">
+                <img class="oppoteam" src="images/raboot.png" alt="">
+            </div>
+        </div>
     </div>
+
+    
+
+    <!-- HP BAR -->
+    <!-- <div class="hp-bar">
+        <div class="hp-bar-fill" style="width: 100%;"></div>
+    </div> -->
+    
 
     
 <!-- Pokemon container for two pokemon -->
     <!-- <div class="pokecontainer">
         <div id="pokeMon1" class="pokemon"></div>
-        <div id="pokeMon2" class="pokemon"> </div> -->
-    </div>
+        <div id="pokeMon2" class="pokemon"> </div>
+    </div> -->
 <!-- Pokemon images -->
     <!-- <img src="" alt="Pokemon Image" id="pokemonSprite1" style="display: none">
     <img src="" alt="Pokemon Image" id="pokemonSprite2" style="display: none"> -->
 
 <!-- Audio -->
-    <audio autoplay loop>
-        <source src="pokebattle.mp3" type="audio/mpeg">
-        no support
-    </audio>
+    <!-- <embed id="pokeaudio" src="audio/wildPokemon.mp3" loop="true" autostart="true" hidden="true"/> -->
+
 
 
     <script src="index.js"></script>
+    <script src="pokeFetch.js"></script>
 </body>
 </html>
